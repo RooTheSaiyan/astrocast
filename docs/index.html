@@ -6,17 +6,30 @@
 <title>The Astrocast — current forecast</title>
 <style>
   :root{
-    --bg:#070912; --panel:#0e1021; --ink:#eaf2ff; --muted:#a9b4d4;
-    --cyan:#7de2ff; --pink:#ff6bc8; --violet:#7a5cff; --peach:#ff8a5c;
-    --glow: 0 0 16px rgba(125,226,255,.45);
+    /* Theme from your logo */
+    --bg:#070912;
+    --panel:#0e1021;
+    --ink:#eaf2ff;
+    --muted:#a9b4d4;
+    --cyan:#7de2ff;
+    --pink:#ff6bc8;
+    --violet:#7a5cff;
+    --peach:#ff8a5c;
+    --glow:0 0 16px rgba(125,226,255,.45);
   }
   html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 70% -10%, #0f1630 0%, var(--bg) 55%);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
   .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 28px;}
-  .brand{display:flex;align-items:baseline;gap:10px;margin:4px 0 16px}
+  .brand{display:flex;align-items:baseline;gap:10px;margin:4px 0 6px}
   .brand .tiny{font-weight:700;color:var(--pink);text-shadow:0 0 10px rgba(255,107,200,.35)}
   .brand h1{margin:0;font-weight:900;letter-spacing:.3px;font-size:1.9rem;color:var(--cyan);text-shadow:var(--glow)}
-  .brand .subtitle{margin-left:.5rem;color:var(--muted);font-weight:700}
+  .brand .sub{margin-left:8px;color:var(--muted);font-weight:700}
   .pill{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(125,226,255,.10);color:var(--cyan);font-weight:700;border:1px solid rgba(125,226,255,.25)}
+  .controls{display:flex;align-items:center;gap:8px;margin:8px 0 16px 0;flex-wrap:wrap}
+  .btn{padding:6px 10px;border-radius:999px;font-weight:700;cursor:pointer}
+  .btn-cyan{border:1px solid rgba(125,226,255,.35);background:rgba(125,226,255,.12);color:var(--cyan)}
+  .btn-pink{border:1px solid rgba(255,107,200,.35);background:rgba(255,107,200,.12);color:var(--pink)}
+  .btn-violet{border:1px solid rgba(122,92,255,.35);background:rgba(122,92,255,.12);color:var(--violet)}
+  .inp{width:110px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#0e1021;color:#eaf2ff;padding:6px 8px}
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
   .card{grid-column:span 12;background:
       linear-gradient(180deg,rgba(14,16,33,.95),rgba(7,9,18,.95)),
@@ -24,24 +37,23 @@
       radial-gradient(500px 200px at 0% 110%, rgba(255,138,92,.10), transparent 60%);
     border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:14px 14px 16px;
     box-shadow:0 8px 30px rgba(0,0,0,.38)}
-  @media(min-width:820px){ .card.sm{grid-column:span 4} .card.md{grid-column:span 6} .card.lg{grid-column:span 12} }
+  @media(min-width:860px){ .card.sm{grid-column:span 4} .card.md{grid-column:span 6} .card.lg{grid-column:span 12} }
   .card h2{margin:.2rem 0 .5rem 0;color:var(--muted);font-size:1rem;font-weight:800}
   .big{font-size:2.2rem;font-weight:900;letter-spacing:.3px}
   .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .muted{color:var(--muted)}
   .list{list-style:none;margin:.25rem 0 0 0;padding:0}
   .list li{padding:8px 0;border-top:1px dashed rgba(255,255,255,.08)}
-  .tbl{width:100%;border-collapse:collapse}
-  .tbl th,.tbl td{padding:8px;border-top:1px dashed rgba(255,255,255,.08);text-align:left}
-  .tbl th{color:var(--muted);font-weight:800}
   a{color:var(--cyan)}
   .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--pink);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .err{color:#ff9aa2}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,.08);text-align:left}
+  th{color:var(--muted);font-weight:800}
   .accent{color:var(--pink)}
-  .foot{margin-top:10px;color:var(--muted);font-size:.95rem}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-  .small{font-size:.9rem}
+  .small{font-size:.92rem}
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
 </style>
 </head>
 <body>
@@ -49,8 +61,18 @@
     <div class="brand">
       <span class="tiny">The</span>
       <h1>Astrocast</h1>
-      <span class="subtitle">— current forecast</span>
+      <span class="sub">current forecast</span>
       <span class="pill" id="loc-pill"><span class="spinner"></span> Getting location…</span>
+    </div>
+
+    <div class="controls">
+      <button id="btnUseLoc" class="btn btn-cyan">Use my location</button>
+      <button id="btnRetry" class="btn btn-pink">Retry</button>
+      <span class="muted small">or set manually:</span>
+      <input id="latInput" class="inp" placeholder="lat eg 35.1179">
+      <input id="lonInput" class="inp" placeholder="lon eg -80.6729">
+      <button id="btnSet" class="btn btn-violet">Set</button>
+      <span class="muted small">Tip: you can also add <span class="mono">?lat=..&lon=..</span> to the URL</span>
     </div>
 
     <div class="grid">
@@ -89,33 +111,23 @@
 
       <div class="card lg">
         <h2>3 Targets for Tonight</h2>
-        <table class="tbl small" id="targetsTbl">
-          <thead>
-            <tr><th>Target</th><th>RA</th><th>Dec</th><th>Rise</th><th>Set</th></tr>
-          </thead>
-          <tbody><tr><td colspan="5">Picking for your latitude/date…</td></tr></tbody>
-        </table>
-        <div class="muted small">RA/Dec (J2000). Rise/Set are approximate, computed locally.</div>
-      </div>
-
-      <div class="card lg" id="sevenDayCard">
-        <h2>7-Day Outlook</h2>
-        <table class="tbl small" id="sevenDay">
-          <thead><tr><th>Day</th><th>Cloud</th><th>Hi / Lo</th><th>Moon</th></tr></thead>
-          <tbody><tr><td colspan="4">Loading 7-day forecast…</td></tr></tbody>
-        </table>
+        <div id="targetsList">Picking for your latitude/date…</div>
+        <div class="muted small">Includes RA/Dec and rise/set (approx.).</div>
       </div>
 
       <div class="card lg">
-        <h2>Space Tidbits</h2>
-        <div id="factQuote">
-          <div class="small" id="randFact">Loading fact…</div>
-          <div class="small" style="margin-top:8px"><em id="randQuote">Loading quote…</em></div>
-        </div>
+        <h2>7-Day Outlook</h2>
+        <div class="small muted">Daily avg cloud, hi/lo temp, and moon phase</div>
+        <div id="sevenDay">Loading…</div>
+      </div>
+
+      <div class="card lg">
+        <h2>Fact & Quote</h2>
+        <div id="factQuote">Loading…</div>
       </div>
     </div>
 
-    <div class="foot">Data: Open-Meteo (no key). ISS via CelesTrak + satellite.js. All times local.</div>
+    <div class="muted small" style="margin-top:12px">Data: Open-Meteo (no key). ISS via CelesTrak + satellite.js. All times local.</div>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/1.3.0/satellite.min.js" defer></script>
@@ -125,56 +137,90 @@
   const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
   const toF = c => Math.round((c * 9/5) + 32);
   const fmtTime = d => d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  const fmtHM = n => String(Math.round(n*10)/10);
-  const dayName = d => d.toLocaleDateString([], {weekday:'short', month:'numeric', day:'numeric'});
+  const fmtDate = d => d.toLocaleDateString([], {month:'short', day:'numeric'});
 
-  // Geolocation (fallback: Charlotte, NC)
-  const getPos = () => new Promise(resolve=>{
-    if(!navigator.geolocation) return resolve({coords:{latitude:35.2271, longitude:-80.8431}});
-    navigator.geolocation.getCurrentPosition(
-      p=>resolve(p),
-      _=>resolve({coords:{latitude:35.2271, longitude:-80.8431}}),
-      {enableHighAccuracy:true, timeout:7000, maximumAge:0}
-    );
-  });
-  const pos = await getPos();
-  const lat = +pos.coords.latitude.toFixed(4);
-  const lon = +pos.coords.longitude.toFixed(4);
-  $("loc-pill").innerHTML = `📍 ${lat}, ${lon}`;
+  // ---------- LOCATION ----------
+  function getUrlCoord(name){
+    const v = new URLSearchParams(location.search).get(name);
+    return v ? parseFloat(v) : null;
+  }
+  function setLocUI(lat,lon){ $("loc-pill").textContent = `📍 ${lat.toFixed(4)}, ${lon.toFixed(4)}`; }
+  async function promptForLocation(){
+    return new Promise(resolve=>{
+      if(!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        p=>resolve({lat:p.coords.latitude, lon:p.coords.longitude}),
+        _=>resolve(null),
+        {enableHighAccuracy:true, timeout:10000, maximumAge:0}
+      );
+    });
+  }
+  async function resolveLocation(){
+    let lat = getUrlCoord("lat"), lon = getUrlCoord("lon");
+    if(lat==null || lon==null){
+      const saved = JSON.parse(localStorage.getItem("astrocast_coords")||"null");
+      if(saved && isFinite(saved.lat) && isFinite(saved.lon)){ lat=saved.lat; lon=saved.lon; }
+    }
+    if(lat==null || lon==null) return null;
+    localStorage.setItem("astrocast_coords", JSON.stringify({lat,lon}));
+    setLocUI(lat,lon);
+    return {lat,lon};
+  }
+  async function askAndSave(){
+    const res = await promptForLocation();
+    if(res){
+      localStorage.setItem("astrocast_coords", JSON.stringify(res));
+      setLocUI(res.lat,res.lon);
+    }else{
+      $("loc-pill").textContent = "❌ Location denied — set lat/lon below";
+    }
+    return res;
+  }
+  $("btnUseLoc").onclick = askAndSave;
+  $("btnRetry").onclick = async ()=>{ await askAndSave(); location.reload(); };
+  $("btnSet").onclick = ()=>{
+    const lat = parseFloat($("latInput").value);
+    const lon = parseFloat($("lonInput").value);
+    if(isFinite(lat)&&isFinite(lon)){
+      localStorage.setItem("astrocast_coords", JSON.stringify({lat,lon}));
+      setLocUI(lat,lon); location.reload();
+    }
+  };
 
-  // Weather: current + 7-day (hourly for clouds to compute daily mean)
-  let hourlyCloud = null, hourlyTimes = null, dailyMax = null, dailyMin = null, dailyDates = null;
+  let coords = await resolveLocation();
+  if(!coords){
+    $("loc-pill").innerHTML = `⚠️ Location needed — click "Use my location" or set lat/lon`;
+    return; // wait for user action, then reload
+  }
+  const {lat, lon} = coords;
+
+  // ---------- WEATHER (Open-Meteo) ----------
+  const wxUrl = new URL("https://api.open-meteo.com/v1/forecast");
+  wxUrl.search = new URLSearchParams({
+    latitude: lat, longitude: lon,
+    current: "temperature_2m,precipitation,cloud_cover",
+    hourly: "cloud_cover,precipitation,temperature_2m",
+    daily: "temperature_2m_max,temperature_2m_min",
+    forecast_days: 7, timezone: "auto"
+  }).toString();
+
+  let hourly=null, daily=null, current=null, tz="local";
   try{
-    const url = new URL("https://api.open-meteo.com/v1/forecast");
-    url.search = new URLSearchParams({
-      latitude: lat, longitude: lon,
-      current: "temperature_2m,precipitation,cloud_cover",
-      hourly: "cloud_cover,precipitation",
-      daily: "temperature_2m_max,temperature_2m_min",
-      forecast_days: 7, timezone: "auto"
-    }).toString();
+    const wx = await fetch(wxUrl).then(r=>r.json());
+    hourly = wx.hourly; daily = wx.daily; current = wx.current; tz = wx.timezone || "local";
 
-    const wx = await fetch(url).then(r=>r.json());
-    // Current
-    const cur = wx.current || {};
-    const cloud = Math.round(cur.cloud_cover ?? wx.hourly?.cloud_cover?.[0] ?? 0);
+    const cloud = Math.round(current?.cloud_cover ?? hourly?.cloud_cover?.[0] ?? 0);
+    const tempF = toF(current?.temperature_2m ?? NaN);
+    const prec = (current?.precipitation ?? NaN);
+
     $("cloudCover").textContent = `${clamp(cloud,0,100)}%`;
-    const tempF = toF(cur.temperature_2m ?? NaN);
-    const prec = (cur.precipitation ?? NaN);
     $("tempNow").textContent = isFinite(tempF) ? tempF : "—";
     $("precipNow").textContent = isFinite(prec) ? prec.toFixed(2) : "—";
-
-    // Save series for 7-day
-    hourlyCloud = wx.hourly?.cloud_cover || [];
-    hourlyTimes = (wx.hourly?.time || []).map(t => new Date(t));
-    dailyMax = wx.daily?.temperature_2m_max || [];
-    dailyMin = wx.daily?.temperature_2m_min || [];
-    dailyDates = (wx.daily?.time || []).map(t => new Date(t));
   }catch(e){
     $("cloudNote").innerHTML = `<span class="err">Weather fetch failed</span>`;
   }
 
-  // Moon phase (local calc)
+  // ---------- MOON PHASE ----------
   function moonPhaseInfo(date=new Date()){
     const synodic = 29.530588853;
     const knownNew = new Date(Date.UTC(2000,0,6,18,14));
@@ -198,103 +244,83 @@
   $("moonPhase").textContent = mp.label;
   $("moonIllum").textContent = `${mp.illum}% illuminated`;
 
-  // 7-day table: compute mean cloud per day from hourly
-  if (hourlyCloud && hourlyTimes && dailyDates && dailyMax && dailyMin) {
-    const tbody = document.querySelector("#sevenDay tbody");
-    tbody.innerHTML = "";
-    for (let i=0;i<dailyDates.length;i++){
-      const d0 = new Date(dailyDates[i]); d0.setHours(0,0,0,0);
-      const d1 = new Date(d0); d1.setDate(d0.getDate()+1);
-      let sum=0, n=0;
-      for(let j=0;j<hourlyTimes.length;j++){
-        const t = hourlyTimes[j];
-        if (t>=d0 && t<d1) { sum += (hourlyCloud[j] ?? 0); n++; }
-      }
-      const meanCloud = n? Math.round(sum/n): NaN;
-      const moon = moonPhaseInfo(d0);
-      const hi = dailyMax[i] != null ? toF(dailyMax[i]) : "—";
-      const lo = dailyMin[i] != null ? toF(dailyMin[i]) : "—";
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${dayName(d0)}</td>
-                      <td>${isFinite(meanCloud)? meanCloud+"%":"—"}</td>
-                      <td>${hi}° / ${lo}°</td>
-                      <td>${moon.label}</td>`;
-      tbody.appendChild(tr);
-    }
-  }
-
-  // Next ISS pass (satellite.js + CelesTrak TLE)
+  // ---------- ISS NEXT PASS ----------
   async function nextISSPass(lat, lon){
-    const tle = await fetch("https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE").then(r=>r.text());
-    const lines = tle.trim().split(/\r?\n/).slice(-2);
-    const satrec = satellite.twoline2satrec(lines[0], lines[1]);
+    try{
+      const tle = await fetch("https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE").then(r=>r.text());
+      const lines = tle.trim().split(/\r?\n/).slice(-2);
+      const satrec = satellite.twoline2satrec(lines[0], lines[1]);
 
-    const obs = {
-      latitude: satellite.degreesToRadians(lat),
-      longitude: satellite.degreesToRadians(lon),
-      height: 0.2
-    };
-    const start = new Date();
-    const end = new Date(start.getTime() + 24*60*60*1000);
-    const step = 30*1000;
+      const obs = { latitude: satellite.degreesToRadians(lat), longitude: satellite.degreesToRadians(lon), height: 0.2 };
+      const start = new Date();
+      const end = new Date(start.getTime() + 24*60*60*1000);
+      const step = 30*1000;
 
-    function altAt(t){
-      const gmst = satellite.gstime(t);
-      const pv = satellite.propagate(satrec, t);
-      if(!pv.position) return null;
-      const ecf = satellite.eciToEcf(pv.position, gmst);
-      const aa = satellite.ecfToLookAngles(obs, ecf);
-      return { el: aa.elevation, when: new Date(t) };
-    }
-
-    let found=null;
-    for(let t=+start; t<=+end; t+=step){
-      const a = altAt(new Date(t));
-      if(!a) continue;
-      if(satellite.radiansToDegrees(a.el) > 20){
-        // refine peak
-        let peak=a, tt=t;
-        for(let j=0;j<40;j++){
-          tt += 15*1000;
-          const b = altAt(new Date(tt));
-          if(!b) break;
-          if(b.el > peak.el) peak=b;
-        }
-        found = {
-          start:new Date(t),
-          peak:peak.when,
-          peakEl: Math.round(satellite.radiansToDegrees(peak.el))
-        };
-        break;
+      function altAt(t){
+        const gmst = satellite.gstime(t);
+        const pv = satellite.propagate(satrec, t);
+        if(!pv.position) return null;
+        const ecf = satellite.eciToEcf(pv.position, gmst);
+        const aa = satellite.ecfToLookAngles(obs, ecf);
+        return { el: aa.elevation, when: new Date(t) };
       }
-    }
-    return found;
-  }
 
-  try{
-    const pass = await nextISSPass(lat,lon);
-    $("issInfo").innerHTML = pass
-      ? `Starts ~ <strong class="accent">${fmtTime(pass.start)}</strong>, peak <strong class="accent">${fmtTime(pass.peak)}</strong> at <strong class="accent">${pass.peakEl}°</strong>`
-      : `No upcoming passes in the near future.`;
-  }catch(e){
-    $("issInfo").innerHTML = `No upcoming passes in the near future.`;
+      for(let t=+start; t<=+end; t+=step){
+        const a = altAt(new Date(t));
+        if(!a) continue;
+        if(satellite.radiansToDegrees(a.el) > 20){
+          // refine peak
+          let peak=a, tt=t;
+          for(let j=0;j<40;j++){
+            tt += 15*1000;
+            const b = altAt(new Date(tt));
+            if(!b) break;
+            if(b.el > peak.el) peak=b;
+          }
+          return { start:new Date(t), peak:peak.when, peakEl: Math.round(satellite.radiansToDegrees(peak.el)) };
+        }
+      }
+      return null;
+    }catch(e){ return null; }
   }
+  const pass = await nextISSPass(lat,lon);
+  $("issInfo").innerHTML = pass
+    ? `Starts ~ <strong class="accent">${fmtTime(pass.start)}</strong>, peak <strong class="accent">${fmtTime(pass.peak)}</strong> at <strong class="accent">${pass.peakEl}°</strong>`
+    : `No upcoming passes in the near future.`;
 
-  // --- Targets with RA/Dec and rise/set ---
-  // Simple catalog (J2000) for the picks in Jul–Oct used earlier
+  // ---------- EVENTS ----------
+  const events2025 = [
+    {date:"2025-08-12", name:"Perseids Meteor Shower Peak"},
+    {date:"2025-09-21", name:"Partial Lunar Eclipse (Americas)"},
+    {date:"2025-10-06", name:"Draconids Peak"},
+    {date:"2025-10-22", name:"Orionids Peak"},
+    {date:"2025-11-17", name:"Leonids Peak"},
+    {date:"2025-12-14", name:"Geminids Peak"}
+  ];
+  const today = new Date();
+  const soon = events2025.map(e=>({ ...e, when:new Date(e.date+"T12:00:00")}))
+    .filter(e=>e.when >= today).sort((a,b)=>a.when-b.when).slice(0,5);
+  $("eventsList").innerHTML = soon.length
+    ? soon.map(e=>`<li><strong>${e.name}</strong> — ${e.when.toLocaleDateString()}</li>`).join("")
+    : `<li>No major listed events soon.</li>`;
+
+  // ---------- TARGETS (RA/Dec + rise/set) ----------
+  // Basic set keyed by month for N mid-lat; include RA hours, Dec degrees
   const catalog = {
-    "Lagoon Nebula (M8)":     { ra: 270.925, dec: -24.38 },
-    "Trifid Nebula (M20)":    { ra: 271.15,  dec: -23.02 },
-    "Eagle Nebula (M16)":     { ra: 274.700, dec: -13.81 },
-    "Andromeda Galaxy (M31)": { ra: 10.6847, dec: 41.269 },
-    "North America Nebula (NGC 7000)": { ra: 314.0, dec: 44.5 },
-    "Veil Nebula (NGC 6960/6992)": { ra: 312.0, dec: 31.0 },
-    "Triangulum Galaxy (M33)":{ ra: 23.462,  dec: 30.660 },
-    "Pacman Nebula (NGC 281)":{ ra: 13.0*15+25/60*15, dec: 56.6 }, // ~ RA 1h25m
-    "Heart & Soul Nebulae":   { ra: 38.0,   dec: 61.0 },
-    "Pleiades (M45)":         { ra: 56.75,  dec: 24.12 }
+    "Lagoon Nebula (M8)": {ra:18.05, dec:-24.4},
+    "Trifid Nebula (M20)": {ra:18.06, dec:-23.0},
+    "Eagle Nebula (M16)": {ra:18.31, dec:-13.8},
+    "Andromeda Galaxy (M31)": {ra:0.71, dec:41.3},
+    "North America Nebula (NGC 7000)": {ra:20.99, dec:44.3},
+    "Veil Nebula (NGC 6960/6992)": {ra:20.78, dec:30.7},
+    "Triangulum Galaxy (M33)": {ra:1.55, dec:30.7},
+    "Pacman Nebula (NGC 281)": {ra:0.88, dec:56.6},
+    "Heart & Soul Nebulae": {ra:2.62, dec:61.6},
+    "Pleiades (M45)": {ra:3.79, dec:24.1},
+    "Milky Way Scutum Star Cloud": {ra:18.6, dec:-10.0},
+    "Small Sagittarius Star Cloud (M24)": {ra:18.28, dec:-18.5},
+    "Sadr Region (IC 1318)": {ra:20.37, dec:40.3}
   };
-
   const month = new Date().getMonth()+1;
   const picksByMonth = {
     7:["Lagoon Nebula (M8)","Trifid Nebula (M20)","Eagle Nebula (M16)"],
@@ -303,10 +329,101 @@
     10:["Pacman Nebula (NGC 281)","Heart & Soul Nebulae","Pleiades (M45)"]
   };
   const fallback = ["Milky Way Scutum Star Cloud","Small Sagittarius Star Cloud (M24)","Sadr Region (IC 1318)"];
-  const picks = picksByMonth[month] || fallback;
+  const picks = (picksByMonth[month] || fallback).filter(n=>catalog[n]);
 
-  // Sidereal helpers for rise/set
-  function jd(date){ return date.getTime()/86400000 + 2440587.5; }
-  function gmst(date){
-    const D = jd(date) - 2451545.0;
-    let gmstHours = 18.697374558 + 24.
+  // Astronomical helpers for rise/set (approx)
+  function toJulian(d){
+    return (d/86400000) + 2440587.5;
+  }
+  function gmst(d){ // in hours
+    const JD = toJulian(d);
+    const T = (JD - 2451545.0)/36525.0;
+    let GMST = 6.697374558 + 2400.051336*T + 0.000025862*T*T + (d.getUTCHours() + d.getUTCMinutes()/60 + d.getUTCSeconds()/3600)*1.002737909;
+    GMST = ((GMST%24)+24)%24; return GMST;
+  }
+  function lst(d, lon){ // in hours; lon in degrees East
+    return (gmst(d) + lon/15 + 24)%24;
+  }
+  function riseSet(raHours, decDeg, latDeg, lonDeg, date){
+    const lat = latDeg*Math.PI/180, dec = decDeg*Math.PI/180;
+    const cosH0 = (Math.sin(-0.01454) - Math.sin(lat)*Math.sin(dec)) / (Math.cos(lat)*Math.cos(dec)); // -0.83° ~ horizon refraction -> in rad
+    if(cosH0 < -1) return {alwaysUp:true}; if(cosH0 > 1) return {neverUp:true};
+    const H0 = Math.acos(cosH0) * 180/Math.PI / 15; // in hours
+    // Find LST at local midnight
+    const midnight = new Date(date); midnight.setHours(0,0,0,0);
+    const LST0 = lst(midnight, lonDeg);
+    const riseLST = (raHours - H0 + 24)%24;
+    const setLST  = (raHours + H0 + 24)%24;
+    const riseUTC = new Date(midnight.getTime() + ((riseLST - LST0 + 24)%24) * 3600*1000);
+    const setUTC  = new Date(midnight.getTime() + ((setLST  - LST0 + 24)%24) * 3600*1000);
+    return {rise: riseUTC, set: setUTC};
+  }
+
+  const tgtLines = picks.map(name=>{
+    const o = catalog[name];
+    const rs = riseSet(o.ra, o.dec, lat, lon, new Date());
+    const raStr = `${Math.floor(o.ra).toString().padStart(2,"0")}h ${(Math.round((o.ra%1)*60)).toString().padStart(2,"0")}m`;
+    const decStr = `${o.dec>=0?"+":"-"}${Math.abs(Math.floor(o.dec)).toString().padStart(2,"0")}° ${Math.round(Math.abs(o.dec%1)*60).toString().padStart(2,"0")}'`;
+    let times = "";
+    if(rs.alwaysUp) times = "Circumpolar (no set)";
+    else if(rs.neverUp) times = "Below horizon";
+    else times = `Rises ~ ${fmtTime(rs.rise)} • Sets ~ ${fmtTime(rs.set)}`;
+    return `<li><strong>${name}</strong><br><span class="small">RA/Dec: <span class="mono">${raStr} / ${decStr}</span> — ${times}</span></li>`;
+  }).join("");
+  $("targetsList").innerHTML = `<ul class="list">${tgtLines}</ul>`;
+
+  // ---------- 7-DAY OUTLOOK ----------
+  // Compute daily avg cloud from hourly; hi/lo from daily
+  function dailyAvgCloud(hourly){
+    const out = {};
+    if(!hourly?.time || !hourly?.cloud_cover) return out;
+    for(let i=0;i<hourly.time.length;i++){
+      const d = new Date(hourly.time[i]);
+      const key = d.toISOString().slice(0,10);
+      (out[key] ||= {sum:0,count:0});
+      out[key].sum += hourly.cloud_cover[i] ?? 0;
+      out[key].count++;
+    }
+    const avg = {};
+    for(const k in out){ avg[k] = Math.round(out[k].sum / Math.max(1,out[k].count)); }
+    return avg;
+  }
+  const cloudAvg = dailyAvgCloud(hourly||{});
+  let rows = `<table><thead><tr><th>Date</th><th>Cloud</th><th>High</th><th>Low</th><th>Moon</th></tr></thead><tbody>`;
+  for(let i=0;i<(daily?.time?.length||0);i++){
+    const d = new Date(daily.time[i]);
+    const key = daily.time[i];
+    const mpd = moonPhaseInfo(d);
+    rows += `<tr>
+      <td>${fmtDate(d)}</td>
+      <td>${cloudAvg[key]!==undefined ? cloudAvg[key]+"%" : "—"}</td>
+      <td>${toF(daily.temperature_2m_max[i])}°</td>
+      <td>${toF(daily.temperature_2m_min[i])}°</td>
+      <td>${mpd.label}</td>
+    </tr>`;
+  }
+  rows += `</tbody></table>`;
+  $("sevenDay").innerHTML = rows;
+
+  // ---------- FACT & QUOTE ----------
+  const facts = [
+    "The Milky Way is rotating at about 220 km/s; our Sun orbits the center once every ~230 million years.",
+    "About 5,000 exoplanets have been confirmed, with thousands more candidates awaiting confirmation.",
+    "Neutron stars can spin hundreds of times per second and pack more mass than the Sun into a city-sized sphere.",
+    "The Andromeda Galaxy is on a collision course with the Milky Way in ~4–5 billion years.",
+    "Dark matter makes up roughly 85% of the Universe’s matter, yet it has never been directly detected."
+  ];
+  const quotes = [
+    {q:"Somewhere, something incredible is waiting to be known.", a:"Carl Sagan"},
+    {q:"Equipped with his five senses, man explores the universe around him and calls the adventure Science.", a:"Edwin Hubble"},
+    {q:"We are a way for the cosmos to know itself.", a:"Carl Sagan"},
+    {q:"The nitrogen in our DNA, the calcium in our teeth, the iron in our blood, the carbon in our apple pies were made in the interiors of collapsing stars.", a:"Carl Sagan"},
+    {q:"To confine our attention to terrestrial matters would be to limit the human spirit.", a:"Stephen Hawking"}
+  ];
+  const f = facts[Math.floor(Math.random()*facts.length)];
+  const q = quotes[Math.floor(Math.random()*quotes.length)];
+  $("factQuote").innerHTML = `<p class="small">${f}</p><p class="small accent">“${q.q}” — ${q.a}</p>`;
+})();
+</script>
+</body>
+</html>
